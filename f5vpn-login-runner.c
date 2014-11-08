@@ -35,6 +35,7 @@ int main(int argc, char **argv)
 	}
 	args[i+1] = 0L;
 	
-	execve(PYTHON, args, env);
+	/* execve(PYTHON, args, env); */
+  execv(PYTHON, args);
 	exit(1);
 }

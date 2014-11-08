@@ -550,7 +550,7 @@ Host: %(host)s\r
     return ''
 
 def do_login(client_data, host, username, password):
-    body="rsa_port=&vhost=standard&username=%(user)s&password=%(password)s&client_data=%(client_data)s&login=Logon&state=&mrhlogonform=1&miniui=1&tzoffsetmin=1&sessContentType=HTML&overpass=&lang=en&charset=iso-8859-1&uilang=en&uicharset=iso-8859-1&uilangchar=en.iso-8859-1&langswitcher=" % dict(user=quote_plus(username), password=quote_plus(password), client_data=client_data)
+    body="rsa_port=&vhost=standard&username=%(user)s&%(password)sclient_data=%(client_data)s&login=Logon&state=&mrhlogonform=1&miniui=1&tzoffsetmin=1&sessContentType=HTML&overpass=&lang=en&charset=iso-8859-1&uilang=en&uicharset=iso-8859-1&uilangchar=en.iso-8859-1&langswitcher=" % dict(user=quote_plus(username), password=password, client_data=client_data)
 
     request = """POST /my.activation.php3 HTTP/1.0\r
 Accept: */*\r
@@ -1071,6 +1071,24 @@ def write_prefs(line):
     except:
         print "Couldn't write prefs file: %s" % CONFIG_FILE
 
+def use_token():
+    if ('F5VPN_USETOKEN' in os.environ.keys() and os.environ['F5VPN_USETOKEN']):
+	return True
+    else:
+	return False
+
+def prompt_pass(user,host):
+  pwd_prompt = "for %s@%s? " % (user, host)
+  prompts = {'password': 'password', 'token password': 'password','domain password': 'dpassword'}
+  if not use_token():
+    del prompts['token password'], prompts['domain password']
+  else:
+    del prompts['password']
+  passwords = {}
+  for prompt in sorted(prompts.iterkeys()):
+    passwords[prompts[prompt]] = getpass.getpass("%s %s" % (prompt, pwd_prompt))
+  return "".join(["%s=%s&" % (k,quote_plus(v)) for k,v in passwords.iteritems()])
+
 # 2.3.5 or higher is required because of this (2.2.X ought to work too, but I've not tested it):
 #     ------------------------------------------------------------------------
 #     r37117 | doko | 2004-08-24 17:48:15 -0400 (Tue, 24 Aug 2004) | 4 lines
@@ -1167,7 +1185,8 @@ def main(argv):
         client_data = get_vpn_client_data(host)
         # Loop keep asking for passwords while the site gives a new prompt
         while True:
-            password = getpass.getpass("password for %s@%s? " % (user, host))
+            #password = getpass.getpass("password for %s@%s? " % (user, host))
+            password = prompt_pass(user, host)
             session = do_login(client_data, host, user, password)
             if session is not None:
                 print "Session id gotten:", session
