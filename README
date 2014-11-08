@@ -31,6 +31,9 @@ James Y Knight, <foom@fuhm.net>
 
 ChangeLog
 ---------
+2014-11-07
+ - Add support for two-factor authentication
+
 2010-10-15
  - Fix "OverrideGateway0" on non-darwin platforms: on those, pppd cowardly
    refuses to replace an existing default route. Reported by Bob Whitinger.
