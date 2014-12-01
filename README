@@ -24,6 +24,9 @@ To run:
 (user@host is saved for future invocations, so doesn't need to be
 specified on future invocations)
 
+To enable Two-Factor Authentication:
+"export F5VPN_USETOKEN=y"
+
 This software is licensed under GPLv3+.
 
 Have fun,
